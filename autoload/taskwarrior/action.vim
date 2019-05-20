@@ -1,5 +1,8 @@
 function! taskwarrior#action#new()
-    call taskwarrior#system_call('', 'add', taskwarrior#data#get_args('add'), 'echo')
+  let l:add_args = taskwarrior#data#get_args('add')
+  if l:add_args != "\<ESC>"
+    call taskwarrior#system_call('', 'add', l:add_args, 'echo')
+  endif
 endfunction
 
 function! taskwarrior#action#set_done()
@@ -65,23 +68,32 @@ function! taskwarrior#action#urgency() abort
     execute 'normal! :\<Esc>'
 endfunction
 
+" modify items under cursor or the whole item
 function! taskwarrior#action#modify(mode)
     let uuid = taskwarrior#data#get_uuid()
+
     if uuid == ''
         return
     endif
-    if a:mode == 'current'
+
+  if a:mode == 'current' " modify current item under cursor
         let field = taskwarrior#data#current_column()
-        if index(['id', 'uuid', 'status', 'urgency'], field) != -1
+    if index(['id', 'uuid', 'status', 'urgency', 'entry'], field) != -1 " these items should not be modified
             return
-        elseif field == 'description'
-            call taskwarrior#system_call(uuid, 'modify', taskwarrior#data#get_args('modify', [field]), 'external')
         else
-            call taskwarrior#system_call(uuid, 'modify', taskwarrior#data#get_args('modify', [field]), 'silent')
+      let l:args = taskwarrior#data#get_args('modify', [field])
+      if l:args != "\<ESC>"
+        call taskwarrior#system_call(uuid, 'modify', l:args, 'silent')
         endif
-    else
-        call taskwarrior#system_call(uuid, 'modify', taskwarrior#data#get_args('modify'), 'external')
     endif
+
+  else " modify the whole item
+    let l:args = taskwarrior#data#get_args('modify')
+    if l:args != "\<ESC>"
+      call taskwarrior#system_call(uuid, 'modify', l:args, 'echo')
+    endif
+  endif
+
 endfunction
 
 function! taskwarrior#action#delete()
@@ -91,17 +103,14 @@ function! taskwarrior#action#delete()
     else
         let ccol = taskwarrior#data#current_column()
         if index(['project', 'tags', 'due', 'priority', 'start', 'depends'], ccol) != -1
-            call taskwarrior#system_call(uuid, 'modify', ccol.':', 'silent')
+      call system(g:tw_cmd.' '.uuid.' del rc.confirmation=no')
         else
-            execute '!'.g:tw_cmd.' '.uuid.' delete'
+      if confirm("Delete task ".uuid."?", "&Yes\n&No", 1) == 1
+        call system(g:tw_cmd.' '.uuid.' del rc.confirmation=no')
+      endif
         endif
     endif
     call taskwarrior#refresh()
-endfunction
-
-function! taskwarrior#action#remove()
-    execute '!'.g:tw_cmd.' '.taskwarrior#data#get_uuid().' delete'
-    call taskwarrior#list()
 endfunction
 
 function! taskwarrior#action#annotate(op)
@@ -206,8 +215,8 @@ function! taskwarrior#action#columns_format_change(direction)
     let ccol_ful = b:task_report_columns[taskwarrior#data#current_index()]
     let ccol_sub = matchstr(ccol_ful, '\.\zs.*')
     let rcl      = matchstr(b:rc, 'rc\.report\.'.b:command.'\.columns.\zs\S*')
-    " let dfl      = system(g:tw_cmd.' _get -- rc.report.'.b:command.'.columns')[0:-2]
-    let dfl      = matchstr(system(g:tw_cmd.' show | grep report.'.b:command.'.columns')[0:-2], '\S*$')
+  " let dfl      = system('task _get -- rc.report.'.b:command.'.columns')[0:-2]
+  let dfl      = matchstr(system(g:tw_cmd.' show | '.g:tw_grep.' report.'.b:command.'.columns')[0:-2], '\S*$')
     let index    = index(clist, ccol_sub)
     let index    = index == -1 ? 0 : index
     if a:direction == 'left'
@@ -299,17 +308,17 @@ endfunction
 function! taskwarrior#action#undo()
     if has("gui_running")
         if exists('g:task_gui_term') && g:task_gui_term == 1
-            exe ('!'.g:tw_cmd.' rc.color=off undo')
+            exe '!'.g:tw_cmd.' rc.color=off undo'
         elseif executable('xterm')
-            exe ('silent !xterm -e \''.g:tw_cmd.' undo\'')
+            exe 'silent !xterm -e \''.g:tw_cmd.' undo\''
         elseif executable('urxvt')
-            exe ('silent !urxvt -e '.g:tw_cmd.' undo')
+            exe 'silent !urxvt -e '.g:tw_cmd.' undo'
         elseif executable('gnome-terminal')
-            exe ('silent !gnome-terminal -e \''.g:tw_cmd.' undo\'')
+            exe 'silent !gnome-terminal -e \''.g:tw_cmd.' undo\''
         endif
     else
         sil !clear
-        execute ('!'.g:tw_cmd.' undo')
+    execute '!'.g:tw_cmd.' undo rc.confirmation=no'
     endif
     call taskwarrior#refresh()
 endfunction
@@ -366,5 +375,5 @@ function! taskwarrior#action#show_info(...)
             let filter = b:filter
         endif
     endif
-    call taskinfo#init(command, filter, split(system(g:tw_cmd.' '.command.' '.filter), '\n'))
+  call taskinfo#init(command, filter, split(system(g:tw_cmd.' rc.color=no '.command.' '.filter), '\n'))
 endfunction

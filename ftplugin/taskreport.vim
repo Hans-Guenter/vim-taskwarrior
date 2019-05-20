@@ -26,7 +26,6 @@ vnoremap <silent> <buffer> <Plug>(taskwarrior_visual_show_info) :call taskwarrio
 nnoremap <silent> <buffer> <Plug>(taskwarrior_annotate)        :call taskwarrior#action#annotate('add')<CR>
 nnoremap <silent> <buffer> <Plug>(taskwarrior_denotate)        :call taskwarrior#action#annotate('del')<CR>
 nnoremap <silent> <buffer> <Plug>(taskwarrior_open_annotate)   :call taskwarrior#action#annotate('open')<CR>
-nnoremap <silent> <buffer> <Plug>(taskwarrior_remove)          :call taskwarrior#action#remove()<CR>
 nnoremap <silent> <buffer> <Plug>(taskwarrior_delete)          :call taskwarrior#action#delete()<CR>
 nnoremap <silent> <buffer> <Plug>(taskwarrior_new)             :call taskwarrior#action#new()<CR>
 nnoremap <silent> <buffer> <Plug>(taskwarrior_command)         :call taskwarrior#action#command()<CR>
@@ -52,10 +51,10 @@ vnoremap <silent> <buffer> <Plug>(taskwarrior_visual_select)   :call taskwarrior
 nmap <buffer> <F1>    <Plug>(taskwarrior_quickref)
 nmap <buffer> Q       <Plug>(taskwarrior_quit_all)
 nmap <buffer> q       <Plug>(taskwarrior_quit)
-nmap <buffer> <left>  <Plug>(taskwarrior_skip_left)
-nmap <buffer> <S-tab> <Plug>(taskwarrior_step_left)
 nmap <buffer> <right> <Plug>(taskwarrior_skip_right)
+nmap <buffer> <left>  <Plug>(taskwarrior_skip_left)
 nmap <buffer> <tab>   <Plug>(taskwarrior_step_right)
+nmap <buffer> <S-tab> <Plug>(taskwarrior_step_left)
 nmap <buffer> <       <Plug>(taskwarrior_sort_increase)
 nmap <buffer> >       <Plug>(taskwarrior_sort_decrease)
 nmap <buffer> s       <Plug>(taskwarrior_sort_inverse)
@@ -81,7 +80,6 @@ if g:task_readonly
         nunmap <silent> <buffer> x
         nunmap <silent> <buffer> o
         nunmap <silent> <buffer> D
-        nunmap <silent> <buffer> <Del>
         nunmap <silent> <buffer> a
         nunmap <silent> <buffer> c
         nunmap <silent> <buffer> d
@@ -100,15 +98,13 @@ if g:task_readonly
         nunmap <silent> <buffer> <C-X>
         vunmap <silent> <buffer> d
         vunmap <silent> <buffer> D
-        vunmap <silent> <buffer> <Del>
         vunmap <silent> <buffer> <Space>
     endif
 else
     nmap <silent> <buffer> A        <Plug>(taskwarrior_annotate)
     nmap <silent> <buffer> x        <Plug>(taskwarrior_denotate)
     nmap <silent> <buffer> o        <Plug>(taskwarrior_open_annotate)
-    nmap <silent> <buffer> D        <Plug>(taskwarrior_remove)
-    nmap <silent> <buffer> <Del>    <Plug>(taskwarrior_delete)
+    nmap <silent> <buffer> D        <Plug>(taskwarrior_delete)
     nmap <silent> <buffer> a        <Plug>(taskwarrior_new)
     nmap <silent> <buffer> c        <Plug>(taskwarrior_command)
     nmap <silent> <buffer> d        <Plug>(taskwarrior_done)
@@ -128,7 +124,6 @@ else
     nmap <silent> <buffer> <C-X>    <Plug>(taskwarrior_decrease)
     vmap <silent> <buffer> d        <Plug>(taskwarrior_visual_done)
     vmap <silent> <buffer> D        <Plug>(taskwarrior_visual_delete)
-    vmap <silent> <buffer> <Del>    <Plug>(taskwarrior_visual_delete)
     vmap <silent> <buffer> <Space>  <Plug>(taskwarrior_visual_select)
 
     command! -buffer TWAdd               :call taskwarrior#action#new()

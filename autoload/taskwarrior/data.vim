@@ -6,32 +6,97 @@ function! taskwarrior#data#get_uuid(...)
     return vol =~ '^\s*-*\s*$' ? '' : vol
 endfunction
 
+" Overcome inconsistent getchar() behaviour...
+function! s:active_getchar ()
+    " Get a character, ignoring annoying timeouts...
+    let char = 0
+    while !char
+        let char = getchar(1)
+    endwhile
+    call getchar(0)
+
+    " Translate <DELETE>'s...
+    if char == 128
+        return "\<BS>"
+
+    " Translate everything else...
+    else
+        return nr2char(char)
+    endif
+endfunction
+
 function! taskwarrior#data#get_args(...)
     if a:0 == 0
         return
     elseif a:0 == 1
-        return taskwarrior#data#get_args(a:1, g:task_default_prompt)
+    return taskwarrior#data#get_args(a:1, g:task_default_prompt) " geting all entries for an item to modify together
     endif
+
     let arg = ' '
-    for key in a:2
-        let default = a:1 == 'modify' ?
-                    \ taskwarrior#data#get_value_by_column('.', key)
-                    \ : ''
-        let temp = shellescape(input(key.":", default), 1)
-        if key == 'description'
-            let arg .= ' '.temp
-        elseif temp !~ '^[ \t]*$' || a:1 == 'modify'
-            let arg .= ' '.key.':'.temp
+
+  for key in a:2 " a:2 is a list containing all keys to be modified
+    let expr = a:1 == 'modify' ? taskwarrior#data#get_value_by_column('.', key) : ''
+
+    if key == 'tags'
+      let expr = substitute(expr, '\s', ",", 'g')
+      echon expr
+    endif
+
+    let prompt = key . ":"
+    echon "\<CR>".prompt.expr
+
+    " getting inputs
+    while 1
+    let c = s:active_getchar()
+
+    " if <ESC> is pressed, return it; if <cr> is pressed, break the loop
+    if c == "\<ESC>"
+      redraw
+      echo "\<cr>"."modification cancelled."
+      return c
+    elseif c ==  "\<CR>"
+      redraw
+      break
+
+    " <backspace> case
+    elseif c == "\<BS>"
+      if len(expr) > 0
+        let expr = expr[0:-2]
+        " clear the current line
+        echon "\<CR>".substitute(expr, ".", " ", "g")
+        " show the new info with last char deleted
+        echon "\<CR>".prompt.expr
+      endif
+
+    elseif c == "\<Left>"
+      "do sth
+    elseif c == "\<Right>"
+      "do sth
+
+    else " all other case
+      let expr .=  c
+      echon "\<cr>".prompt.expr
         endif
+
+    endwhile
+
+    if expr !~ '^[ \t]*$' || a:1 == 'modify'
+      let arg .= ' '.key.':'.expr
+    endif
+
     endfor
-    echom arg
+
     return arg
 endfunction
 
+
 function! taskwarrior#data#get_value_by_column(line, column, ...)
+  " do nothing for title line
     if a:line == 1 || (a:line == '.' && line('.') == 1)
         return ''
     endif
+
+  " return value for non-title line
     if a:column == 'id' || a:column == 'uuid' || exists('a:1')
         let index = match(b:task_report_columns, '^'.a:column.'.*')
         return taskwarrior#data#get_value_by_index(a:line, index(b:task_report_columns, a:column))
@@ -48,12 +113,14 @@ function! taskwarrior#data#get_value_by_column(line, column, ...)
     endif
 endfunction
 
+
 function! taskwarrior#data#get_value_by_index(line, index)
     if exists('b:task_columns[a:index]')
         return substitute(getline(a:line)[b:task_columns[a:index]:b:task_columns[a:index+1]-1], '\(\s*$\|^\s*\)', '',  'g')
     endif
     return ''
 endfunction
+
 
 function! taskwarrior#data#current_index()
     let i = 0
@@ -63,9 +130,11 @@ function! taskwarrior#data#current_index()
     return i-1
 endfunction
 
+
 function! taskwarrior#data#current_column()
     return matchstr(b:task_report_columns[taskwarrior#data#current_index()], '^\w\+')
 endfunction
+
 
 function! taskwarrior#data#get_stats(method)
     let dict = {}
@@ -86,16 +155,20 @@ function! taskwarrior#data#get_stats(method)
     return dict
 endfunction
 
+
 function! taskwarrior#data#get_query(...)
     let uuid = get(a:, 1, taskwarrior#data#get_uuid())
     if uuid == ''
         return {}
     endif
-    let obj = webapi#json#decode(substitute(system(
-                \ g:tw_cmd.' rc.verbose=off '.uuid.' export'),
-                \ '\nConfiguration.*', '', ''))
+
+  let s:objCode = system(g:tw_cmd.' rc.verbose=no '.uuid.' export')
+  let s:objCode = substitute(s:objCode, 'Configuration.*:no', '', '')
+  let s:objCode = substitute(s:objCode, '\n', '', 'g')
+  let obj = webapi#json#decode(s:objCode)
     return type(obj) == 3 ? obj[0] : obj
 endfunction
+
 
 function! taskwarrior#data#global_stats()
     let dict = taskwarrior#data#get_stats(b:filter)
@@ -105,6 +178,7 @@ function! taskwarrior#data#global_stats()
                 \ get(taskwarrior#data#get_stats(''), 'Pending', 0)
                 \ ]
 endfunction
+
 
 function! taskwarrior#data#category()
     let dict           = {}

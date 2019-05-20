@@ -1,19 +1,27 @@
-vim-taskwarrior
+taskwarrior.vim
 ===============
 
-_a vim interface for [taskwarrior](https://taskwarrior.org)_
+**This repo is forked from the original repos:** [blindFS/vim-taskwarrior](https://github.com/blindFS/vim-taskwarrior)
+and [xarthurx/taskwarrior.vim](https://github.com/xarthurx/taskwarrior.vim) for maintenance and development.
 
-Taskwarrior is a command-line todo list manager. It helps you manage task lists
-with projects, tags, dates, dependencies, annotations, recurrences and apply
-complex (or simple) queries with attribute modifiers, boolean, regex filters
-and produce any number of reports, built-in or customizable reports, attributes
-and color themes. Task keeps data in JSON text files and it's always improving.
-Find out more at https://taskwarrior.org and read man task and man taskrc.
+Since TaskWarrior does not provide a [native Windows version](https://github.com/GothenburgBitFactory/taskwarrior/issues/2159), native Windows VIM users need to install it inside *WSL* environment. The plugin should be able to take care of the rest.
 
-vim-taskwarrior is a vim plugin that extends taskwarrior with an interactive
+## Things added since forked
+
+* Support for native Windows 10 by calling *TaskWarrior* from *WSL* (*TaskWarrior* need to be installed inside *WSL*).
+* Fix `del` and `undo` bug by ignoring confirmation from shell.
+* Various small bugs has been fixed by browsing the issue list from the original repo.
+* Fix an issue that treat multiple tags connected with `<space>` as a single tag.
+* Fix an issue that not be able to cancel modification process.
+* Merge multiple calls of shell cmd to improve performance in *WSL* environment.
+
+## Info from the original repo (modified accordingly)
+
+_a vim interface for [Taskwarrior](https://taskwarrior.org)_
+
+[taskwarrior.vim](https://github.com/xarthurx/taskwarrior.vim) is a vim plugin that extends Taskwarrior with an interactive
 interface. It features a rich set of mappings and commands, is easy to customize,
 and makes adding, modifying, sorting, reporting and marking done, fast, easy and fun!
-Homepage: https://github.com/farseer90718/vim-taskwarrior, patches welcome!
 
 ----
 
@@ -31,25 +39,11 @@ Suggested plugins
 * [vim-airline](https://github.com/bling/vim-airline) for [better statusline information](https://github.com/farseer90718/vim-taskwarrior#screenshot).
 * [unite.vim](https://github.com/Shougo/unite.vim) for easier bookmark/history operations.
 
-If you experience line-wrapping issues, add the following line to your .vimrc
-
-```
-let g:task_rc_override = 'rc.defaultwidth=0'
-```
-
-If you experience task truncation (vim-taskwarrior not showing enough tasks), add:
-
-```
-let g:task_rc_override = 'rc.defaultheight=0'
-```
-
-
 ----
 
 ### Screenshot:
 
 ![screenshot](https://raw.github.com/farseer90718/vim-taskwarrior/master/screenshot.png)
-![vim-taskwarrior animated gif](http://taskextras.org/attachments/download/655/20131110_002753.gif)
 
 ### Installing:
 
@@ -57,15 +51,15 @@ Either [download zip file](https://github.com/farseer90718/vim-taskwarrior/archi
 and extract in ~/.vim or use your favorite plugin manager.
 
 - [Pathogen](https://github.com/tpope/vim-pathogen)
-    - `git clone https://github.com/farseer90718/vim-taskwarrior ~/.vim/bundle/vim-taskwarrior`
+    - `git clone https://github.com/xarthurx/taskwarrior.vim ~/.vim/bundle/taskwarrior.vim`
 - [Vundle](https://github.com/gmarik/vundle)
-    1. Add `Bundle 'farseer90718/vim-taskwarrior'` to .vimrc
+    1. Add `Plugin 'xarthurx/taskwarrior.vim'` to .vimrc
     2. Run `:BundleInstall`
 - [NeoBundle](https://github.com/Shougo/neobundle.vim)
-    1. Add `NeoBundle 'farseer90718/vim-taskwarrior'` to .vimrc
+    1. Add `NeoBundle 'xarthurx/taskwarrior.vim'` to .vimrc
     2. Run `:NeoBundleInstall`
 - [vim-plug](https://github.com/junegunn/vim-plug)
-    1. Add `Plug 'blindFS/vim-taskwarrior'` to .vimrc
+    1. Add `Plug 'xarthurx/taskwarrior.vim'` to .vimrc
     2. Run `:PlugInstall`
 
 ----
@@ -78,8 +72,7 @@ nnoremap <buffer> x       ... " delete annotation.
 nnoremap <buffer> o       ... " open the annotation as a file.
 nnoremap <buffer> a       ... " create new task.
 nnoremap <buffer> d       ... " set the task in current line done.
-nnoremap <buffer> D       ... " delete task
-nnoremap <buffer> <Del>   ... " delete field/annotation/task
+nnoremap <buffer> D       ... " delete field/annotation/task
 nnoremap <buffer> <Space> ... " select/remove current task to selected list
 nnoremap <buffer> m       ... " modify current field.
 nnoremap <buffer> M       ... " modify current task.
@@ -175,7 +168,24 @@ let g:task_left_arrow      = ' <<'
 " backward arrow ...
 let g:task_left_arrow      = '>> '
 
+
+" for native windows, the following two commands are used
+let g:taskwarrior_cmd      = 'wsl task'
+let g:task_grep            = 'findstr' " default
+
+
+If you experience line-wrapping issues, add the following line to your .vimrc
+
 ```
+let g:task_rc_override = 'rc.defaultwidth=0'
+```
+
+If you experience task truncation (taskwarrior.vim not showing enough tasks), add:
+
+```
+let g:task_rc_override = 'rc.defaultheight=0'
+```
+
 ----
 
 ### Syntax highlightling:
@@ -216,8 +226,5 @@ in your vimrc.
 
 ### License:
 
-[MIT](https://raw.github.com/farseer90718/vim-taskwarrior/master/LICENSE.txt)
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/farseer90718/vim-taskwarrior/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+[MIT](https://raw.github.com/xarthurx/taskwarrior.vim/master/LICENSE.txt)
 
