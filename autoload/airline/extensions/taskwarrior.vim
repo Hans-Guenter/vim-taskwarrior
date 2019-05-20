@@ -31,7 +31,7 @@ function! airline#extensions#taskwarrior#apply(...)
 endfunction
 
 function s:context()
-    let con = split(system('task context show'), '\n')
+    let con = split(system(g:tw_cmd . ' context show'), '\n')
     let con = con =~ 'No context' ? 'none' : con
     return con
 endfunction
