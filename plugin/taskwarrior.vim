@@ -1,6 +1,6 @@
 if exists('g:loaded_taskwarrior') && g:loaded_taskwarrior
-	echo "taskwarrior loaded"
-	finish
+  echo "taskwarrior loaded"
+  finish
 endif
 
 " FIRST -- WSL env in Windows OR native Linux env
@@ -31,9 +31,9 @@ let s:task_report_command           = ['active', 'all', 'blocked', 'blocking',  
 let g:task_report_command           = extend(s:task_report_command, g:task_report_command)
 
 let g:task_interactive_command      = ['annotate', 'denotate', 'execute', 'duplicate',
-            \ 'append', 'prepend', 'stop', 'delete', 'done', 'undo',
-            \ 'config', 'edit', 'start', 'sync', 'synchronize', 'add',
-            \ 'modify', 'import', 'colors', 'color', 'logo', 'context']
+                                      \ 'append', 'prepend', 'stop', 'delete', 'done', 'undo',
+                                      \ 'config', 'edit', 'start', 'sync', 'synchronize', 'add',
+                                      \ 'modify', 'import', 'colors', 'color', 'logo', 'context']
 
 let g:task_all_commands             = split(system(g:tw_cmd.' _command'), '\n')
 

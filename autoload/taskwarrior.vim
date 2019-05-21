@@ -139,8 +139,8 @@ endfunction
 function! taskwarrior#refresh()
     if exists('g:task_view')
         for bufn in g:task_view
-            execute bufn.'buffer'
-            call taskwarrior#list()
+          execute bufn.'buffer'
+          call taskwarrior#list()
         endfor
     else
         call taskwarrior#init()
@@ -207,13 +207,13 @@ endfunction
 
 function! taskwarrior#system_call(filter, command, args, mode)
 
-    if a:mode == 'silent'
-        call system(g:tw_cmd.' '.a:filter.' '.a:command.' '.a:args)
+  if a:mode == 'silent'
+    call system(g:tw_cmd.' '.a:filter.' '.a:command.' '.a:args)
   else " echo the output
-        echo system(g:tw_cmd.' '.a:filter.' '.a:command.' '.a:args)
-    endif
+    echo system(g:tw_cmd.' '.a:filter.' '.a:command.' '.a:args)
+  endif
 
-    call taskwarrior#refresh()
+  call taskwarrior#refresh()
 endfunction
 
 function! taskwarrior#command_type(string)
