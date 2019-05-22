@@ -14,7 +14,7 @@ function! taskwarrior#list(...) abort
     let rcs       = split(b:rc, ' ')
     let b:rc      = join(filter(copy(rcs), "match(rcs, matchstr(v:val, '^[^=:]*'), v:key+1) == -1"), ' ')
 
-    " todo: bottleneck - too many calls of "task" command. try to call once
+    " todo: bottleneck - too many calls of “task" command. try to call once
     " and matchstr later
     "
     let b:task_show_info        = system(g:tw_cmd." show")
